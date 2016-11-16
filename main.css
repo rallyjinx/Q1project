@@ -1,4 +1,38 @@
+
+
+body {
+  background-color: #0a0789 !important;
+  color: #dbdde0 !important;
+
+}
+
 .header {
-  background-color: #08048e;
-  color: #f0effc;
+  background-color: #0a0789;
+  color: #dbdde0;
+  padding: 15px;
+
+}
+
+.dino {
+
+}
+
+.output {
+
+}
+
+.para {
+  background-color: #fff;
+  color: #000;
+  width: 100%;
+  border-radius: 5px;
+  height: 327px;
+  text-align: left;
+}
+
+h6 {
+  margin: 10px;
+}
+.foot {
+  text-align: center;
 }

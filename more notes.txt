@@ -1,0 +1,45 @@
+ready!app.js:2:5
+submit button clicked!app.js:31:3
+synonym array Array [  ]app.js:82:3
+GET 
+XHR 
+http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/and/json [HTTP/1.1 404 Not Found 73ms]
+GET 
+XHR 
+http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/This/json [HTTP/1.1 404 Not Found 119ms]
+GET 
+XHR 
+http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/everything/json [HTTP/1.1 404 Not Found 135ms]
+GET 
+XHR 
+http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/and/json [HTTP/1.1 404 Not Found 206ms]
+submit button clicked!app.js:31:3
+synonym array Array [ "holding", "invigoration", "donjon", "move", "improving", "improving", "astir", "semen", "change", "cancelled", 102 more… ]app.js:82:3
+TypeError: val.syn is undefined
+[Learn More]app.js:10:23
+TypeError: val.syn is undefined
+[Learn More]app.js:10:23
+TypeError: val.syn is undefined
+[Learn More]app.js:10:23
+TypeError: val.syn is undefined
+[Learn More]app.js:10:23
+TypeError: val.syn is undefined
+[Learn More]app.js:10:23
+TypeError: val.syn is undefined
+[Learn More]app.js:10:23
+
+
+dance noun Object { syn: Array[9] }
+syn: dancing 
+dance verb Object { syn: Array[3] }
+syn: trip the light fantastic 
+
+dance
+{"noun":{"syn":["dancing","terpsichore","saltation","art","diversion","fine art","party","performing arts","recreation"]},"verb":{"syn":["trip the light fantastic","trip the light fantastic toe","move"]}}
+happy
+{"adjective":{"syn":["felicitous","glad","well-chosen"],"ant":["unhappy"],"rel":["felicitous","glad","cheerful","content","contented","elated","euphoric","joyful","joyous"],"sim":["felicitous","blessed","blissful","bright","fortunate","golden","halcyon","laughing","prosperous","riant","willing"]}}
+red
+{"adjective":{"syn":["reddish","ruddy","blood-red","carmine","cerise","cherry","cherry-red","crimson","ruby","ruby-red","scarlet","violent","reddened","red-faced","flushed"],"sim":["bloody","chromatic","colored","colorful","coloured"]},"noun":{"syn":["redness","Red","Red River","Bolshevik","Marxist","bolshie","bolshy","loss","red ink","amount","amount of money","chromatic color","chromatic colour","radical","river","spectral color","spectral colour","sum","sum of money"],"ant":["gain"]}}
+
+told
+404 error
