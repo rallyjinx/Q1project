@@ -10,12 +10,13 @@ body {
   background-color: #0a0789;
   color: #dbdde0;
   padding: 15px;
-  font-family: 'Lora', serif;
+  font-family: 'Architects Daughter', cursive;
 }
 
+
 .dino {
-  width: 50%;
-  height: 100px;
+  width: auto;
+  height: 200px;
 }
 .input-box {
   border-radius: 5px;
