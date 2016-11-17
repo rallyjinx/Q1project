@@ -3,7 +3,6 @@
 body {
   background-color: #0a0789 !important;
   color: #dbdde0 !important;
-
 }
 
 .header {
@@ -13,6 +12,9 @@ body {
   font-family: 'Architects Daughter', cursive;
 }
 
+.counter {
+  font-family: 'Ranga', cursive;
+}
 
 .dino {
   width: auto;
@@ -30,7 +32,7 @@ body {
   color: #000;
   width: 100%;
   border-radius: 5px;
-  height: 327px;
+  height: 315px;
   text-align: left;
 }
 

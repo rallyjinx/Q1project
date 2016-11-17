@@ -8,102 +8,93 @@ var asynonymous = ['on', 'some', 'the', 'a', 'an', 'me', 'i', 'you', 'this', 'th
                     'many', 'few', 'more', 'most', 'less', 'fewer', 'least', 'fewest', 'every', 'never', 'very', 'always', 'too', 'each', 'yes',
                     'almost', 'yours', 'mine', 'him', 'hers', 'he', 'she', 'it', 'is', 'was', 'and', 'with', 'without', 'in', 'if', 'also', 'but', 'though',
                     'although', 'could', 'would', 'should', 'couldn\'t', 'wouldn\'t', 'shouldn\'t', 'don\'t', 'won\'t', 'can\'t', 'didn\'t', 'knew', 'know',
-                    'been', 'be', 'must', 'they'];
+                    'been', 'be', 'must', 'they', 'are', 'of'];
 
 var unchanged = {};
 var obj = {};
+var counter = 0;
+var nearLimit = 800;
+var limit = 1000;
 
-//when the submit button is clicked
+
+//Submit button click handler
 $('#submit').on('click', function(event) {
   event.preventDefault();
   let words = $('#input-box').val()
-  for (var i = 0; i < words.length; i++) {
-  //  words[i].match(/\n/g)
-  }
-//  console.log(words);
-  words = words.replace(/\s+/g, ' ');
-  words = words.toLowerCase();
-  let wordArray = words.split(' ').filter(function(el) {return el.length !== 0});
+  // format input
+  console.log(typeof words);
+  let wordArray = formatInput(words);
   wordCount = wordArray.length;
-  let tempArray = [];
   for (var i = 0; i < wordArray.length; i++) {
     word = punctuation(wordArray[i]);
-    tempArray.push(word);
     if (asynonymous.indexOf(word) === -1) {
       //make the API call, if success increment the imaginary API call counter
-      console.log('callAPI');
-      console.log(JSON.stringify(callAPI(word, i)));
-      console.log('done with callAPI');
+      callAPI(word, i);
     } else {
       //if the word is in the asynonymous list, save word, index so it can be put back
       unchanged[i] = word;
-    } //end if-else
-  } //end for loop
-  //  getSynonyms(tempArray);
+    } //end if
+  } //end for
 }); //end submit click handler
 
+var newlineLocation = [];
+function formatInput(rawInput) {
+  newLine(rawInput);
+  rawInput = rawInput.replace(/\s+/g, ' ').toLowerCase();
+  let formattedInput = rawInput.split(' ').filter(function(el) {return el.length !== 0});
+  return formattedInput;
+}
+
+function newLine(theInput) {
+  theInput = theInput.split('\n');
+  let temp;
+  let loc = -1;
+  for (var i = 0; i < theInput.length; i++) {
+    temp = theInput[i].split(' ');
+    loc = loc + temp.length;
+    newlineLocation.push(loc);
+  }
+  console.log(newlineLocation);
+
+  }
 
 
 function punctuation(w) {
   //strip punctuation and SAVE WHERE IT IS TO PUT IT BACK????
   let punct = [',', '.', '?', '(', ')', '!', ':', ';', "\'", "\""];
-  let index;
   for (let i = 0; i < w.length; i++) {
     if (punct.indexOf(w[i]) > -1) {
-      //save the word (w) and the index of the punctuation (i) - won't work because new word could be different length
-      //how to remember that there is a word with punctuation?
        if (i === 0) {
          w = w.slice(1, w.length);
-        // console.log("sliced",  w);
        } else if (i === w.length-1) {
          w = w.slice(0, i);
-      //   console.log("sliced",  w);
        }
     }
   }
   return w;
 } //end punctuation()
 
-function afterRequest(w, i) {
-
-  console.log("hi", w);
-
-}
-function getSynonyms(wArray) {
-  console.log("inside getSynonyms", wArray);
-  var syn = callAPI(wArray);
-  console.log("after API call", syn);
+function outputText(syn) {
+    let str = ""
+    for (var k in syn) {
+      for (var i = 0; i < newlineLocation.length; i++) {
+        if (newlineLocation[i] == k) {
+          syn[k] = syn[k] + '<br>'
+        }
+      }
+      str = str + " " + syn[k];
+    }
+    $('#outtext').append(str);
+    $('#counter').append(counter); //might this need to be localStorage instead? and cleared...
 }
 
 function callAPI(word, index) {
-  console.log(word);
-  // var jqxhr = $.ajax({
-  //   url: 'http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/' + word + '/json',
-  //   method: "GET"
-  // })
-  // .done(function(data) {
-  //   console.log(data);
-  // })
-  // .fail(function(data) {
-  //   console.log("fail");
-  // });
-  // console.log(JSON.stringify(jqxhr));
-//  console.log('call getJSON: '+ word);
-  // $.getJSON('http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/' + word + '/json')
-  // .done(function(data) {
-  //   console.log('done handler: '+ JSON.stringify(data));
-  //   return data;
-  // })
-  // .fail(function(data) {
-  //   console.log('fail handler');
-  //   return word;
-  // });
   var synonyms = {};
   var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/' + word + '/json');
+    counter++;
     $xhr.done(function(data) {
       var items = [];
       for (var key in data) {
-    //    console.log("data[key]", data[key], "word", word);
         if (typeof data[key].syn !== 'undefined') {
           for (var i = 0; i < data[key].syn.length; i++) {
             items.push(data[key].syn[i]);
@@ -116,252 +107,25 @@ function callAPI(word, index) {
           for (var i = 0; i < data[key].rel.length; i++) {
             items.push(data[key].rel[i]);
           }
-        } else { //never gets here, because data doesn't exist for words not in thesaurus
-    //      console.log('wtf');
-    //      console.log(unchanged);
-          }
-        } //end for
-        //console.log(localStorage);
-        // unchanged[index] = localStorage.getItem(index);
-        // localStorage.clear();
-        let newWord = items[Math.floor(Math.random() * items.length)];
-
-    //    var synonyms = {};
-        //obj = callback(newWord, index);
-    //    console.log(index, newWord);
-      obj[index] = newWord;
-      // $('p').append(newWord + " " + "(" + word + ") "); //does not do things in the right order
-
-  //    console.log("why not here?", obj, unchanged);
-        synonyms = Object.assign({}, obj, unchanged);
-        console.log("synonyms", synonyms);
-
-    //output new lyrics onto screen
-//      console.log(synonyms, Object.keys(synonyms).length, wordCount)
-      if (Object.keys(synonyms).length === wordCount) {
-//     console.log(synonyms, Object.keys(synonyms).length, wordCount);
-        //iterate over keys and display
-        let str = ""
-      for (var k in synonyms) {
-        //  $('#output').append('<p id="outtext">'k'</p>');
-           str = str + " " + synonyms[k];
-          // $("p").append(synonyms[k]);
         }
-        $('#outtext').append(str);
+      } //end for
 
-      } // end if
-  //
+      let newWord = items[Math.floor(Math.random() * items.length)];
+      obj[index] = newWord;
+      synonyms = Object.assign({}, obj, unchanged);
+
+    // output new lyrics onto screen
+      if (Object.keys(synonyms).length === wordCount) {
+        outputText(synonyms);
+      }
+
      }); //end $xhr.done
      $xhr.fail(function(jqxhr, textStatus, error) {
-       console.log('WE ARE IN THE FAIL CALLBACK');
-       unchanged[index] = word;
-      // $('p').append(word + " ");
-      synonyms = Object.assign({}, obj, unchanged);
-      console.log("synonyms", synonyms);
-
-  //output new lyrics onto screen
-//      console.log(synonyms, Object.keys(synonyms).length, wordCount)
-    if (Object.keys(synonyms).length === wordCount) {
-//     console.log(synonyms, Object.keys(synonyms).length, wordCount);
-      //iterate over keys and display
-      let str = ""
-      for (var k in synonyms) {
-      //  $('#output').append('<p id="outtext">'k'</p>');
-         str = str + " " + synonyms[k];
-        // $("p").append(synonyms[k]);
-      }
-      $('#outtext').append(str);
-    }
-  });
+        unchanged[index] = word;
+        synonyms = Object.assign({}, obj, unchanged);
+        // output new lyrics onto screen
+        if (Object.keys(synonyms).length === wordCount) {
+          outputText(synonyms);
+        }
+      }); //end $xhr.fail
 } //end callAPI
-
-
-
-//   $xhr.done(function(data) {
-//     var items = [];
-//     for (var key in data) {
-//   //    console.log("data[key]", data[key], "word", word);
-//       if (typeof data[key].syn !== 'undefined') {
-//         for (var i = 0; i < data[key].syn.length; i++) {
-//           items.push(data[key].syn[i]);
-//         }
-//       } else if (typeof data[key].sim !== 'undefined') {
-//         for (var i = 0; i < data[key].sim.length; i++) {
-//           items.push(data[key].sim[i]);
-//         }
-//       } else if (typeof data[key].rel !== 'undefined') {
-//         for (var i = 0; i < data[key].rel.length; i++) {
-//           items.push(data[key].rel[i]);
-//         }
-//       } else { //never gets here, because data doesn't exist for words not in thesaurus
-//   //      console.log('wtf');
-//   //      console.log(unchanged);
-//         }
-//       } //end for
-//       //console.log(localStorage);
-//       // unchanged[index] = localStorage.getItem(index);
-//       // localStorage.clear();
-//       let newWord = items[Math.floor(Math.random() * items.length)];
-//
-//       var synonyms = {};
-//       //obj = callback(newWord, index);
-//   //    console.log(index, newWord);
-//       obj[index] = newWord;
-//      $('p').append(newWord + " " + "(" + word + ") "); //does not do things in the right order
-// //
-// //
-// //   //    console.log("why not here?", obj, unchanged);
-// //       synonyms = Object.assign({}, obj, unchanged);
-// //   //    console.log(synonyms);
-// //
-// //     //output new lyrics onto screen
-// //    console.log(synonyms, Object.keys(synonyms).length, wordCount)
-// //     if (Object.keys(synonyms).length === wordCount) {
-// // //      console.log(synonyms, Object.keys(synonyms).length, wordCount);
-// //       //iterate over keys and display
-// //       let str = ""
-// //       for (var k in synonyms) {
-// //       //  $('#output').append('<p id="outtext">'k'</p>');
-// //         str = str + " " + synonyms[k];
-// //     //    $("p").append(synonyms[k]);
-// //       }
-// //       $('#outtext').append(str);
-// //
-// //     } // end if
-// //
-//    }); //end $xhr.done
-//    $xhr.fail(function(jqxhr, textStatus, error) {
-//      console.log('WE ARE IN THE FAIL CALLBACK');
-//      unchanged[index] = word;
-//     // $('p').append(word + " ");
-//    }).then(afterRequest(word, index));
-
-  // $xhr.success().then(afterRequest(word, index));
-  //  $xhr.fail(function() {
-  //    console.log(word, index);
-  //    unchanged[index] = word;
-  //    console.log(unchanged);
-   //  localStorage.setItem(index,word)
-  // });
-//
-
-
-  // $.ajax({
-  //   url: 'http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/' + word + '/json',
-  //   method: "GET",
-  //   fail: function(data) {
-  //     console.log("fail");
-  //   },
-  //   success: function(data) {
-  //     alert(JSON.stringify(data));
-  //   }
-  // });
-
-//   var jqxhr = $.getJSON('http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/' + word + '/json', function (data) {
-// //  $.getJSON('http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/' + word + '/json', function (data) {
-//     console.log(jqxhr.status);
-//     jqxhr.fail(function(data) {
-//       console.log( "error" );
-//       unchanged[index] = word; //this doesn't work because it happens after everything finishes
-//     });
-//     jqxhr.done(function(data) {
-//     //  console.log(jQuery.isEmptyObject(data), word, data);
-//       var items = [];
-//       for (var key in data) {
-//     //    console.log("data[key]", data[key], "word", word);
-//         if (typeof data[key].syn !== 'undefined') {
-//           for (var i = 0; i < data[key].syn.length; i++) {
-//             items.push(data[key].syn[i]);
-//           }
-//         } else if (typeof data[key].sim !== 'undefined') {
-//           for (var i = 0; i < data[key].sim.length; i++) {
-//             items.push(data[key].sim[i]);
-//           }
-//         } else if (typeof data[key].rel !== 'undefined') {
-//           for (var i = 0; i < data[key].rel.length; i++) {
-//             items.push(data[key].rel[i]);
-//           }
-//         } else { //never gets here, because data doesn't exist for words not in thesaurus
-//     //      console.log('wtf');
-//     //      console.log(unchanged);
-//           items.push(word);
-//           }
-//         }
-//         let newWord = items[Math.floor(Math.random() * items.length)];
-//         var obj = {};
-//         var synonyms = {};
-//         obj = callback(newWord, index);
-//   //      console.log(obj, unchanged);
-//         synonyms = Object.assign({}, obj, unchanged);
-//     //    console.log(synonyms);
-//
-//       //output new lyrics onto screen
-//   //    console.log(synonyms, Object.keys(synonyms).length, wordCount)
-//       if (Object.keys(synonyms).length === wordCount) {
-//   //      console.log(synonyms, Object.keys(synonyms).length, wordCount);
-//         //iterate over keys and display
-//         let str = ""
-//         for (var k in synonyms) {
-//         //  $('#output').append('<p id="outtext">'k'</p>');
-//           str = str + " " + synonyms[k];
-//       //    $("p").append(synonyms[k]);
-//         }
-//         $('#outtext').append(str);
-//
-//       } // end if
-
-//    $.each( data, function( key, val) { //data = Object {noun: Object, verb: Object}
-//    console.log("key", key, "val", val, "data", data);
-//         if (typeof val.syn !== undefined || val.syn.length > 0) {
-//         //  console.log("syn not empty", val.syn[i]);
-//           for (var i = 0; i < val.syn.length; i++) {
-//           //  console.log("syn", val.syn[i]);
-//             items.push(val.syn[i]);
-//           }
-//         } else if (typeof val.sim !== undefined || val.sim.length > 0) {
-//           for (var i = 0; i < val.sim.length; i++) {
-//       //      console.log("sim", val.sim[i]);
-//             items.push(val.sim[i]);
-//           }
-//         } else if (typeof val.rel !== undefined || val.rel.length > 0) {   //if it has sim & rel it does both...
-//           for (var i = 0; i < val.rel.length; i++) {
-//       //      console.log("rel", val.rel[i]);
-//             items.push(val.rel[i]);
-//           }
-//         } else {
-//     //      console.log('wtf');
-//           items.push(word);
-//         }
-//     //    console.log("items", items);
-//         let newWord = items[Math.floor(Math.random() * items.length)];
-//
-//         var obj = {};
-//         var synonyms = {};
-//
-//         obj = callback(newWord, index);
-//   //      console.log(obj, unchanged);
-//         synonyms = Object.assign({}, obj, unchanged);
-//     //    console.log(synonyms);
-//
-//       //output new lyrics onto screen
-// //      console.log(obj, Object.keys(synonyms).length, wordCount)
-//       if (Object.keys(synonyms).length === wordCount) {
-//   //      console.log(synonyms, Object.keys(synonyms).length, wordCount);
-//         //iterate over keys and display
-//         let str = ""
-//         for (var k in synonyms) {
-//         //  $('#output').append('<p id="outtext">'k'</p>');
-//           str = str + " " + synonyms[k];
-//       //    $("p").append(synonyms[k]);
-//         }
-//         $('#outtext').append(str);
-//
-//       }
-//    }); //end $.each - closure
-//     }); //end .done
-//
-// jqxhr.always(function() {
-//   console.log( "complete" );
-// });
-//   }); //end getJSON - closure
-//} //end getSyn()
