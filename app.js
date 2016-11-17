@@ -8,65 +8,61 @@ var asynonymous = ['on', 'some', 'the', 'a', 'an', 'me', 'i', 'you', 'this', 'th
                     'many', 'few', 'more', 'most', 'less', 'fewer', 'least', 'fewest', 'every', 'never', 'very', 'always', 'too', 'each', 'yes',
                     'almost', 'yours', 'mine', 'him', 'hers', 'he', 'she', 'it', 'is', 'was', 'and', 'with', 'without', 'in', 'if', 'also', 'but', 'though',
                     'although', 'could', 'would', 'should', 'couldn\'t', 'wouldn\'t', 'shouldn\'t', 'don\'t', 'won\'t', 'can\'t', 'didn\'t', 'knew', 'know',
-                    'been', 'be', 'must', 'they', 'are', 'of'];
-
+                    'been', 'be', 'must', 'they', 'are', 'of', 'or', 'oh'];
 var unchanged = {};
 var obj = {};
+var newlineLocation = [];
+var punctRememberer = {};
 var counter = 0;
-var nearLimit = 800;
-var limit = 1000;
-
 
 //Submit button click handler
 $('#submit').on('click', function(event) {
   event.preventDefault();
   let words = $('#input-box').val()
   // format input
-  console.log(typeof words);
   let wordArray = formatInput(words);
   wordCount = wordArray.length;
   for (var i = 0; i < wordArray.length; i++) {
-    word = punctuation(wordArray[i]);
+    word = punctuation(wordArray[i], i);
     if (asynonymous.indexOf(word) === -1) {
-      //make the API call, if success increment the imaginary API call counter
+      //call the API for that word
       callAPI(word, i);
     } else {
-      //if the word is in the asynonymous list, save word, index so it can be put back
+      //save the original word and index to be combined later with synonyms
       unchanged[i] = word;
     } //end if
   } //end for
 }); //end submit click handler
 
-var newlineLocation = [];
+//Format input to be readable by the API
 function formatInput(rawInput) {
   newLine(rawInput);
   rawInput = rawInput.replace(/\s+/g, ' ').toLowerCase();
   let formattedInput = rawInput.split(' ').filter(function(el) {return el.length !== 0});
   return formattedInput;
 }
-
+//Find line breaks and remember where they are
 function newLine(theInput) {
   theInput = theInput.split('\n');
   let temp;
   let loc = -1;
-  for (var i = 0; i < theInput.length; i++) {
-    temp = theInput[i].split(' ');
-    loc = loc + temp.length;
-    newlineLocation.push(loc);
+    for (var i = 0; i < theInput.length; i++) {
+      temp = theInput[i].split(' ');
+      loc = loc + temp.length;
+      newlineLocation.push(loc);
+    }
+//    console.log(newlineLocation);
   }
-  console.log(newlineLocation);
-
-  }
-
-
-function punctuation(w) {
-  //strip punctuation and SAVE WHERE IT IS TO PUT IT BACK????
+//Find punctuation and remember where it is
+function punctuation(w, ind) {
   let punct = [',', '.', '?', '(', ')', '!', ':', ';', "\'", "\""];
   for (let i = 0; i < w.length; i++) {
     if (punct.indexOf(w[i]) > -1) {
        if (i === 0) {
+         punctRememberer[ind] = w[i];
          w = w.slice(1, w.length);
        } else if (i === w.length-1) {
+         punctRememberer[ind] = w[i];
          w = w.slice(0, i);
        }
     }
@@ -74,23 +70,32 @@ function punctuation(w) {
   return w;
 } //end punctuation()
 
+//Display text, adding line breaks and punctuation back in
 function outputText(syn) {
     let str = ""
     for (var k in syn) {
+      for (var x in punctRememberer) {
+        if (x == k) {
+          syn[k] = syn[k] + punctRememberer[x];
+        }
+      }
       for (var i = 0; i < newlineLocation.length; i++) {
         if (newlineLocation[i] == k) {
-          syn[k] = syn[k] + '<br>'
+          console.log(newlineLocation[i], k)
+          syn[k] = syn[k] + '\n';
         }
       }
       str = str + " " + syn[k];
     }
-    $('#outtext').append(str);
+  //  $('#outtext').append(str);
+    $('#outtext').val(str);
     $('#counter').append(counter); //might this need to be localStorage instead? and cleared...
 }
-
+// http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/
+// http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/
 function callAPI(word, index) {
   var synonyms = {};
-  var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/' + word + '/json');
+  var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/' + word + '/json');
     counter++;
     $xhr.done(function(data) {
       var items = [];
@@ -110,20 +115,25 @@ function callAPI(word, index) {
         }
       } //end for
 
+      //Pick a random synonym and save to object
       let newWord = items[Math.floor(Math.random() * items.length)];
       obj[index] = newWord;
+      //Combine synonyms and original words
       synonyms = Object.assign({}, obj, unchanged);
-
-    // output new lyrics onto screen
+      //When done, output new lyrics onto screen
       if (Object.keys(synonyms).length === wordCount) {
         outputText(synonyms);
       }
 
      }); //end $xhr.done
      $xhr.fail(function(jqxhr, textStatus, error) {
+       if ($xhr.status === 500) {
+         alert("API call daily limit exceeded. Please try again in 24 hours.");
+         return;
+       }
         unchanged[index] = word;
         synonyms = Object.assign({}, obj, unchanged);
-        // output new lyrics onto screen
+        //When done, output new lyrics onto screen
         if (Object.keys(synonyms).length === wordCount) {
           outputText(synonyms);
         }
