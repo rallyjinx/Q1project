@@ -1,6 +1,5 @@
 $( document ).ready(function() {
     console.log( "ready!" );
-});
 
 //global variables
 var asynonymous = ['on', 'some', 'the', 'a', 'an', 'me', 'i', 'you', 'this', 'that', 'these', 'those', 'my', 'your', 'his', 'her', 'hers', 'its', 'our',
@@ -13,7 +12,8 @@ var unchanged = {};
 var obj = {};
 var newlineLocation = [];
 var punctRememberer = {};
-var counter = 0;
+var count = 0;
+//localStorage.clear();
 
 //Submit button click handler
 $('#submit').on('click', function(event) {
@@ -34,6 +34,9 @@ $('#submit').on('click', function(event) {
   } //end for
 }); //end submit click handler
 
+$('#clear').on('click', function() {
+  localStorage.clear();
+});
 //Format input to be readable by the API
 function formatInput(rawInput) {
   newLine(rawInput);
@@ -81,7 +84,6 @@ function outputText(syn) {
       }
       for (var i = 0; i < newlineLocation.length; i++) {
         if (newlineLocation[i] == k) {
-          console.log(newlineLocation[i], k)
           syn[k] = syn[k] + '\n';
         }
       }
@@ -89,14 +91,28 @@ function outputText(syn) {
     }
   //  $('#outtext').append(str);
     $('#outtext').val(str);
-    $('#counter').append(counter); //might this need to be localStorage instead? and cleared...
+    $('#counter').append(localStorage.getItem('count')); //might this need to be localStorage instead? and cleared...
 }
+
+function counter() {
+  str_count = localStorage.getItem("count");
+  if (str_count == null || str_count == "null"){
+    count = 0;
+  } else {
+    count = parseInt(str_count);
+  }
+  count++;
+  console.log(count);
+  localStorage.setItem("count", count);
+}
+// API keys
 // http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/
 // http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/
 function callAPI(word, index) {
   var synonyms = {};
   var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/' + word + '/json');
-    counter++;
+    counter();
+
     $xhr.done(function(data) {
       var items = [];
       for (var key in data) {
@@ -139,3 +155,4 @@ function callAPI(word, index) {
         }
       }); //end $xhr.fail
 } //end callAPI
+});
