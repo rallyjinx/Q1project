@@ -13,7 +13,6 @@ var obj = {};
 var newlineLocation = [];
 var punctRememberer = {};
 var count = 0;
-//localStorage.clear();
 
 //Submit button click handler
 $('#submit').on('click', function(event) {
@@ -37,6 +36,11 @@ $('#submit').on('click', function(event) {
 $('#clear').on('click', function() {
   localStorage.clear();
 });
+
+$('#reset').on('click', function() {
+  location.reload();
+});
+
 //Format input to be readable by the API
 function formatInput(rawInput) {
   newLine(rawInput);
@@ -65,8 +69,13 @@ function punctuation(w, ind) {
          punctRememberer[ind] = w[i];
          w = w.slice(1, w.length);
        } else if (i === w.length-1) {
-         punctRememberer[ind] = w[i];
-         w = w.slice(0, i);
+           if (w[i] === "\'") {
+             w = w.slice(0, i);
+             w = w + 'g';
+           } else {
+           punctRememberer[ind] = w[i];
+           w = w.slice(0, i);
+           }
        }
     }
   }
@@ -89,7 +98,6 @@ function outputText(syn) {
       }
       str = str + " " + syn[k];
     }
-  //  $('#outtext').append(str);
     $('#outtext').val(str);
     $('#counter').append(localStorage.getItem('count')); //might this need to be localStorage instead? and cleared...
 }
@@ -105,9 +113,7 @@ function counter() {
   console.log(count);
   localStorage.setItem("count", count);
 }
-// API keys
-// http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/
-// http://words.bighugelabs.com/api/2/28b3aeb788f1c24f4a1e1771b32ab1bb/
+
 function callAPI(word, index) {
   var synonyms = {};
   var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/' + word + '/json');
