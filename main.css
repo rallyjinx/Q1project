@@ -12,6 +12,10 @@ body {
   font-family: 'Architects Daughter', cursive;
 }
 
+.header-title {
+  font-size: 50px;
+}
+
 .counter {
   font-family: 'Ranga', cursive;
 }
@@ -19,12 +23,11 @@ body {
 .dino {
   width: auto;
   height: 200px;
+  margin-top: 20px;
 }
+
 .input-box {
   border-radius: 5px;
-}
-.output {
-
 }
 
 .para {
@@ -39,9 +42,11 @@ body {
 p {
   padding: 10px;
 }
+
 h6 {
   margin: 10px;
 }
+
 .foot {
   text-align: center;
 }
