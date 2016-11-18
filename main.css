@@ -21,6 +21,10 @@ body {
   font-family: 'Ranga', cursive;
   display: flex;
 }
+
+.count {
+  display: inline;
+}
 .num {
   flex-flow: column;
 }

@@ -52,22 +52,25 @@ function formatInput(rawInput) {
   rawInput = rawInput.replace(/\s+/g, ' ').toLowerCase();
   let formattedInput = rawInput.split(' ').filter(function(el) {return el.length !== 0});
   return formattedInput;
-}
+} //end formatInput()
+
 //Find line breaks and remember where they are
 function newLine(theInput) {
   theInput = theInput.split('\n');
   let temp;
   let loc = -1;
-    for (var i = 0; i < theInput.length; i++) {
-      if (theInput[i] !== "") {
-        temp = theInput[i].split(' ');
-        loc = loc + temp.length;
-        newlineLocation.push(loc);
-      } else {
-        lineBreak.push(i);
-      }
+  for (var i = 0; i < theInput.length; i++) {
+    if (theInput[i] !== "") {
+      temp = theInput[i].split(' ');
+      loc = loc + temp.length;
+      newlineLocation.push(loc);
+    } else {
+      //for line breaks between lines
+      lineBreak.push(i);
     }
   }
+} //end newLine()
+
 //Find punctuation and remember where it is
 function punctuation(w, ind) {
   let punct = [',', '.', '?', '(', ')', '!', ':', ';', "\'", "\""];
@@ -93,29 +96,31 @@ function punctuation(w, ind) {
 
 //Display text, adding line breaks and punctuation back in
 function outputText(syn) {
-    let str = ""
-    let line = 0;
-    for (var k in syn) {
-      for (var x in punctRememberer) {
-        if (x == k) {
-          syn[k] = syn[k] + punctRememberer[x];
-        }
+  let str = ""
+  let line = 0;
+  for (var k in syn) {
+    for (var x in punctRememberer) {
+      if (x == k) {
+        syn[k] = syn[k] + punctRememberer[x];
       }
-      for (var i = 0; i < newlineLocation.length; i++) {
-        if (newlineLocation[i] == k) {
-          syn[k] = syn[k] + '\n';
-          line++;
-        }
-        if (lineBreak[i] === line) {
-          syn[k] = '\n ' + syn[k];
-          line++;
-        }
-      }
-      str = str + " " + syn[k];
     }
-    $('#outtext').val(str);
-  //  $('#counter').append(localStorage.getItem('count'));
-}
+    for (var i = 0; i < newlineLocation.length; i++) {
+      if (newlineLocation[i] == k) {
+        syn[k] = syn[k] + '\n';
+        line++;
+      }
+      if (lineBreak[i] === line) {
+        syn[k] = '\n ' + syn[k];
+        line++;
+      }
+    }
+    str = str + " " + syn[k];
+  }
+  //Display output
+  $('#outtext').val(str);
+  $('#counter').empty();
+  $('#counter').append(localStorage.getItem('count'));
+} // end outputText()
 
 function counter() {
   str_count = localStorage.getItem("count");
@@ -126,11 +131,12 @@ function counter() {
   }
   count++;
   localStorage.setItem("count", count);
-}
+} //end counter()
 
 function callAPI(word, index) {
   var synonyms = {};
-  var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/' + word + '/json');
+  //ENV[“API_KEY”]
+  var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/992cf9ea0eca65ee5a9ab73703592312/' + word + '/json');
     counter();
     $xhr.done(function(data) {
       var items = [];
@@ -161,17 +167,19 @@ function callAPI(word, index) {
       }
 
      }); //end $xhr.done
-     $xhr.fail(function(jqxhr, textStatus, error) {
-       if ($xhr.status === 500) {
-         alert("API call daily limit exceeded. Please try again in 24 hours.");
-         return;
-       }
-        unchanged[index] = word;
-        synonyms = Object.assign({}, obj, unchanged);
-        //When done, output new lyrics onto screen
-        if (Object.keys(synonyms).length === wordCount) {
-          outputText(synonyms);
-        }
-      }); //end $xhr.fail
-} //end callAPI
-});
+   $xhr.fail(function(jqxhr, textStatus, error) {
+     if ($xhr.status === 500) {
+       alert("API call daily limit exceeded. Please try again in 24 hours.");
+       return;
+     }
+      //Synonym unavailable, save original word
+      unchanged[index] = word;
+      //Combine synonyms and original words
+      synonyms = Object.assign({}, obj, unchanged);
+      //When done, output new lyrics onto screen
+      if (Object.keys(synonyms).length === wordCount) {
+        outputText(synonyms);
+      }
+    }); //end $xhr.fail
+} //end callAPI()
+}); //document.ready()
