@@ -1,10 +1,13 @@
-
-
+/**************************
+Body
+************************ */
 body {
   background-color: #0a0789 !important;
   color: #dbdde0 !important;
 }
-
+/**************************
+Header
+************************ */
 .header {
   background-color: #0a0789;
   color: #dbdde0;
@@ -15,8 +18,9 @@ body {
 .header-title {
   font-size: 50px;
 }
-
-
+/**************************
+Header counter
+************************ */
 .counter {
   font-family: 'Ranga', cursive;
   display: flex;
@@ -25,20 +29,23 @@ body {
 .count {
   display: inline;
 }
-.num {
-  flex-flow: column;
-}
-
+/**************************
+Header image
+************************ */
 .dino {
   width: auto;
   height: 200px;
   margin-top: 20px;
 }
-
+/**************************
+Text input
+************************ */
 .input-box {
   border-radius: 5px;
 }
-
+/**************************
+Text output
+************************ */
 .para {
   background-color: #fff;
   color: #000;
@@ -47,15 +54,16 @@ body {
   height: 315px;
   text-align: left;
 }
-
-p {
-  padding: 10px;
+/**************************
+API key input box
+************************ */
+.api-input {
+  margin-top: 20px;
+  color: #000;
 }
-
-h6 {
-  margin: 10px;
-}
-
+/**************************
+Footer
+************************ */
 .foot {
   text-align: center;
 }

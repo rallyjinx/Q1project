@@ -1,185 +1,194 @@
-$( document ).ready(function() {
-    console.log( "ready!" );
+$(document).ready(function() {
+    console.log("ready!");
 
-//global variables
-var asynonymous = ['on', 'some', 'the', 'a', 'an', 'me', 'i', 'you', 'this', 'that', 'these', 'those', 'my', 'your', 'his', 'her', 'hers', 'its', 'our',
-                    'ours', 'their', 'theirs', 'whose', 'which', 'what', 'where', 'why', 'how', 'when', 'whichever', 'whatever', 'any', 'we', 'us', 'much',
-                    'many', 'few', 'more', 'most', 'less', 'fewer', 'least', 'fewest', 'every', 'never', 'very', 'always', 'too', 'each', 'yes',
-                    'almost', 'yours', 'mine', 'him', 'hers', 'he', 'she', 'it', 'is', 'was', 'and', 'with', 'without', 'in', 'if', 'also', 'but', 'though',
-                    'although', 'could', 'would', 'should', 'couldn\'t', 'wouldn\'t', 'shouldn\'t', 'don\'t', 'won\'t', 'can\'t', 'didn\'t', 'knew', 'know',
-                    'been', 'be', 'must', 'they', 'are', 'of', 'or', 'oh'];
-var unchanged = {};
-var obj = {};
-var newlineLocation = [];
-var punctRememberer = {};
-var lineBreak = [];
-var count = 0;
-$('#counter').append(localStorage.getItem('count'));
+    //global variables
+    var asynonymous = ['on', 'some', 'the', 'a', 'an', 'me', 'i', 'you', 'this', 'that', 'these', 'those', 'my', 'your', 'his', 'her', 'hers', 'its', 'our',
+        'ours', 'their', 'theirs', 'whose', 'which', 'what', 'where', 'why', 'how', 'when', 'whichever', 'whatever', 'any', 'we', 'us', 'much',
+        'many', 'few', 'more', 'most', 'less', 'fewer', 'least', 'fewest', 'every', 'never', 'very', 'always', 'too', 'each', 'yes',
+        'almost', 'yours', 'mine', 'him', 'hers', 'he', 'she', 'it', 'is', 'was', 'and', 'with', 'without', 'in', 'if', 'also', 'but', 'though',
+        'although', 'could', 'would', 'should', 'couldn\'t', 'wouldn\'t', 'shouldn\'t', 'don\'t', 'won\'t', 'can\'t', 'didn\'t', 'knew', 'know',
+        'been', 'be', 'must', 'they', 'are', 'of', 'or', 'oh'
+    ];
+    var unchanged = {};
+    var obj = {};
+    var newlineLocation = [];
+    var punctRememberer = {};
+    var lineBreak = [];
+    var count = 0;
 
-//Submit button click handler
-$('#submit').on('click', function(event) {
-  event.preventDefault();
-  let words = $('#input-box').val()
-  // format input
-  let wordArray = formatInput(words);
-  wordCount = wordArray.length;
-  for (var i = 0; i < wordArray.length; i++) {
-    word = punctuation(wordArray[i], i);
-    if (asynonymous.indexOf(word) === -1) {
-      //call the API for that word
-      callAPI(word, i);
-    } else {
-      //save the original word and index to be combined later with synonyms
-      unchanged[i] = word;
-    } //end if
-  } //end for
-}); //end submit click handler
+    $('#counter').append(localStorage.getItem('count'));
 
-//Clear button click handler
-$('#clear').on('click', function() {
-  localStorage.clear();
-  location.reload();
-});
+    // Optional: take in api key and use it in callAPI()
+    $('#api-submit').on('click', function(event) {
+      event.preventDefault();
+      api_key = $('#apikey').val();
+    });
 
-//Reset button click handler
-$('#reset').on('click', function() {
-  location.reload();
-});
+    //Submit button click handler
+    $('#submit').on('click', function(event) {
+        event.preventDefault();
+        let words = $('#input-box').val()
+            // format input
+        let wordArray = formatInput(words);
+        wordCount = wordArray.length;
+        for (var i = 0; i < wordArray.length; i++) {
+            word = punctuation(wordArray[i], i);
+            if (asynonymous.indexOf(word) === -1) {
+                //call the API for that word
+                callAPI(word, i);
+            } else {
+                //save the original word and index to be combined later with synonyms
+                unchanged[i] = word;
+            } //end if
+        } //end for
+    }); //end submit click handler
 
-//Format input to be readable by the API
-function formatInput(rawInput) {
-  newLine(rawInput);
-  rawInput = rawInput.replace(/\s+/g, ' ').toLowerCase();
-  let formattedInput = rawInput.split(' ').filter(function(el) {return el.length !== 0});
-  return formattedInput;
-} //end formatInput()
+    //Clear button click handler
+    $('#clear').on('click', function() {
+        localStorage.clear();
+        location.reload();
+    });
 
-//Find line breaks and remember where they are
-function newLine(theInput) {
-  theInput = theInput.split('\n');
-  let temp;
-  let loc = -1;
-  for (var i = 0; i < theInput.length; i++) {
-    if (theInput[i] !== "") {
-      temp = theInput[i].split(' ');
-      loc = loc + temp.length;
-      newlineLocation.push(loc);
-    } else {
-      //for line breaks between lines
-      lineBreak.push(i);
-    }
-  }
-} //end newLine()
+    //Reset button click handler
+    $('#reset').on('click', function() {
+        location.reload();
+    });
 
-//Find punctuation and remember where it is
-function punctuation(w, ind) {
-  let punct = [',', '.', '?', '(', ')', '!', ':', ';', "\'", "\""];
-  for (let i = 0; i < w.length; i++) {
-    if (punct.indexOf(w[i]) > -1) {
-       if (i === 0) {
-         punctRememberer[ind] = w[i];
-         w = w.slice(1, w.length);
-       } else if (i === w.length-1) {
-           //change VERBin' to VERBing
-           if (w[i] === "\'") {
-             w = w.slice(0, i);
-             w = w + 'g';
-           } else {
-           punctRememberer[ind] = w[i];
-           w = w.slice(0, i);
-           }
-       }
-    }
-  }
-  return w;
-} //end punctuation()
+    //Format input to be readable by the API
+    function formatInput(rawInput) {
+        newLine(rawInput);
+        rawInput = rawInput.replace(/\s+/g, ' ').toLowerCase();
+        let formattedInput = rawInput.split(' ').filter(function(el) {
+            return el.length !== 0
+        });
+        return formattedInput;
+    } //end formatInput()
 
-//Display text, adding line breaks and punctuation back in
-function outputText(syn) {
-  let str = ""
-  let line = 0;
-  for (var k in syn) {
-    for (var x in punctRememberer) {
-      if (x == k) {
-        syn[k] = syn[k] + punctRememberer[x];
-      }
-    }
-    for (var i = 0; i < newlineLocation.length; i++) {
-      if (newlineLocation[i] == k) {
-        syn[k] = syn[k] + '\n';
-        line++;
-      }
-      if (lineBreak[i] === line) {
-        syn[k] = '\n ' + syn[k];
-        line++;
-      }
-    }
-    str = str + " " + syn[k];
-  }
-  //Display output
-  $('#outtext').val(str);
-  $('#counter').empty();
-  $('#counter').append(localStorage.getItem('count'));
-} // end outputText()
-
-function counter() {
-  str_count = localStorage.getItem("count");
-  if (str_count == null || str_count == "null"){
-    count = 0;
-  } else {
-    count = parseInt(str_count);
-  }
-  count++;
-  localStorage.setItem("count", count);
-} //end counter()
-
-function callAPI(word, index) {
-  var synonyms = {};
-  //ENV[“API_KEY”]
-  var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/992cf9ea0eca65ee5a9ab73703592312/' + word + '/json');
-    counter();
-    $xhr.done(function(data) {
-      var items = [];
-      for (var key in data) {
-        if (typeof data[key].syn !== 'undefined') {
-          for (var i = 0; i < data[key].syn.length; i++) {
-            items.push(data[key].syn[i]);
-          }
-        } else if (typeof data[key].sim !== 'undefined') {
-          for (var i = 0; i < data[key].sim.length; i++) {
-            items.push(data[key].sim[i]);
-          }
-        } else if (typeof data[key].rel !== 'undefined') {
-          for (var i = 0; i < data[key].rel.length; i++) {
-            items.push(data[key].rel[i]);
-          }
+    //Find line breaks and remember where they are
+    function newLine(theInput) {
+        theInput = theInput.split('\n');
+        let temp;
+        let loc = -1;
+        for (var i = 0; i < theInput.length; i++) {
+            if (theInput[i] !== "") {
+                temp = theInput[i].split(' ');
+                loc = loc + temp.length;
+                newlineLocation.push(loc);
+            } else {
+                //for line breaks between lines
+                lineBreak.push(i);
+            }
         }
-      } //end for
+    } //end newLine()
 
-      //Pick a random synonym and save to object
-      let newWord = items[Math.floor(Math.random() * items.length)];
-      obj[index] = newWord;
-      //Combine synonyms and original words
-      synonyms = Object.assign({}, obj, unchanged);
-      //When done, output new lyrics onto screen
-      if (Object.keys(synonyms).length === wordCount) {
-        outputText(synonyms);
-      }
+    //Find punctuation and remember where it is
+    function punctuation(w, ind) {
+        let punct = [',', '.', '?', '(', ')', '!', ':', ';', "\'", "\""];
+        for (let i = 0; i < w.length; i++) {
+            if (punct.indexOf(w[i]) > -1) {
+                if (i === 0) {
+                    punctRememberer[ind] = w[i];
+                    w = w.slice(1, w.length);
+                } else if (i === w.length - 1) {
+                    //change VERBin' to VERBing
+                    if (w[i] === "\'") {
+                        w = w.slice(0, i);
+                        w = w + 'g';
+                    } else {
+                        punctRememberer[ind] = w[i];
+                        w = w.slice(0, i);
+                    }
+                }
+            }
+        }
+        return w;
+    } //end punctuation()
 
-     }); //end $xhr.done
-   $xhr.fail(function(jqxhr, textStatus, error) {
-     if ($xhr.status === 500) {
-       alert("API call daily limit exceeded. Please try again in 24 hours.");
-       return;
-     }
-      //Synonym unavailable, save original word
-      unchanged[index] = word;
-      //Combine synonyms and original words
-      synonyms = Object.assign({}, obj, unchanged);
-      //When done, output new lyrics onto screen
-      if (Object.keys(synonyms).length === wordCount) {
-        outputText(synonyms);
-      }
-    }); //end $xhr.fail
-} //end callAPI()
+    //Display text, adding line breaks and punctuation back in
+    function outputText(syn) {
+        let str = ""
+        let line = 0;
+        for (var k in syn) {
+            for (var x in punctRememberer) {
+                if (x == k) {
+                    syn[k] = syn[k] + punctRememberer[x];
+                }
+            }
+            for (var i = 0; i < newlineLocation.length; i++) {
+                if (newlineLocation[i] == k) {
+                    syn[k] = syn[k] + '\n';
+                    line++;
+                }
+                if (lineBreak[i] === line) {
+                    syn[k] = '\n ' + syn[k];
+                    line++;
+                }
+            }
+            str = str + " " + syn[k];
+        }
+        //Display output
+        $('#outtext').val(str);
+        $('#counter').empty();
+        $('#counter').append(localStorage.getItem('count'));
+    } // end outputText()
+
+    function counter() {
+        str_count = localStorage.getItem("count");
+        if (str_count == null || str_count == "null") {
+            count = 0;
+        } else {
+            count = parseInt(str_count);
+        }
+        count++;
+        localStorage.setItem("count", count);
+    } //end counter()
+
+    function callAPI(word, index) {
+        var synonyms = {};
+        var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/${INSERT API KEY HERE}' + '/' + word + '/json');
+        counter();
+        $xhr.done(function(data) {
+            var items = [];
+            for (var key in data) {
+                if (typeof data[key].syn !== 'undefined') {
+                    for (var i = 0; i < data[key].syn.length; i++) {
+                        items.push(data[key].syn[i]);
+                    }
+                } else if (typeof data[key].sim !== 'undefined') {
+                    for (var i = 0; i < data[key].sim.length; i++) {
+                        items.push(data[key].sim[i]);
+                    }
+                } else if (typeof data[key].rel !== 'undefined') {
+                    for (var i = 0; i < data[key].rel.length; i++) {
+                        items.push(data[key].rel[i]);
+                    }
+                }
+            } //end for
+
+            //Pick a random synonym and save to object
+            let newWord = items[Math.floor(Math.random() * items.length)];
+            obj[index] = newWord;
+            //Combine synonyms and original words
+            synonyms = Object.assign({}, obj, unchanged);
+            //When done, output new lyrics onto screen
+            if (Object.keys(synonyms).length === wordCount) {
+                outputText(synonyms);
+            }
+
+        }); //end $xhr.done
+        $xhr.fail(function(jqxhr, textStatus, error) {
+            if ($xhr.status === 500) {
+                alert("API call daily limit exceeded. Please try again in 24 hours.");
+                return;
+            }
+            //Synonym unavailable, save original word
+            unchanged[index] = word;
+            //Combine synonyms and original words
+            synonyms = Object.assign({}, obj, unchanged);
+            //When done, output new lyrics onto screen
+            if (Object.keys(synonyms).length === wordCount) {
+                outputText(synonyms);
+            }
+        }); //end $xhr.fail
+    } //end callAPI()
 }); //document.ready()
