@@ -7,7 +7,7 @@ $(document).ready(function() {
         'many', 'few', 'more', 'most', 'less', 'fewer', 'least', 'fewest', 'every', 'never', 'very', 'always', 'too', 'each', 'yes',
         'almost', 'yours', 'mine', 'him', 'hers', 'he', 'she', 'it', 'is', 'was', 'and', 'with', 'without', 'in', 'if', 'also', 'but', 'though',
         'although', 'could', 'would', 'should', 'couldn\'t', 'wouldn\'t', 'shouldn\'t', 'don\'t', 'won\'t', 'can\'t', 'didn\'t', 'knew', 'know',
-        'been', 'be', 'must', 'they', 'are', 'of', 'or', 'oh'
+        'been', 'be', 'must', 'they', 'are', 'of', 'or', 'oh', 'am'
     ];
     var unchanged = {};
     var obj = {};
