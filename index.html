@@ -2,7 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>Song-a-saurus</title>
+    <link rel="icon" type="image/png" href="images/png/brontosaurus.png" sizes="16x16">
     <link rel=stylesheet href="main.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Architects+Daughter" rel="stylesheet">
@@ -12,9 +13,10 @@
   <body>
     <header class="header">
       <div class="header-text col-md-9">
-      <h1 class="header-title">Song Thesaurus</h1>
+      <h1 class="header-title">Song-a-saurus</h1>
       <h4>You can look up words one at a time in a thesaurus and the synonyms will make sense. But why make sense when you can look them all up at once?</h4>
-      <h3 id="counter" class="counter">Word look-up counter : </h3><h3 class="counter">Word look-up daily limit : 1000</h3>
+      <h3 class="counter" id="counter">Word look-up counter: </h3>
+      <h3 class="counter">Word look-up daily limit : 1000</h3>
     </div>
       <img src="images/23e56c67c9df1b3d4a12af70247bb2ec.jpg" alt="dinosaur" class="dino col-md-3">
     </header>
@@ -23,11 +25,11 @@
       <div class="row">
         <div class="col-md-6">
           <form id="input-form" >
-            <label for="text-input">Please enter lyrics you wish to transform</label>
+            <label for="text-input">Please enter lyrics you wish the Song-a-saurus to change</label>
             <br>
             <textarea id="input-box" name="text-input" autofocus class="form-control" rows="15" overflow="hidden"></textarea>
             <br>
-            <button type="submit" id="submit" class="btn btn-primary">Get Synonyms!</button>
+            <button type="submit" id="submit" class="btn btn-primary">Get New Song!</button>
             <button type="button" id="clear" class="btn btn-primary">Clear Word Look-up Count</button>
             <button type="button" id="reset" class="btn btn-primary">Reset</button>
           </form>

@@ -16,8 +16,13 @@ body {
   font-size: 50px;
 }
 
+
 .counter {
   font-family: 'Ranga', cursive;
+  display: flex;
+}
+.num {
+  flex-flow: column;
 }
 
 .dino {

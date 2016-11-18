@@ -12,7 +12,9 @@ var unchanged = {};
 var obj = {};
 var newlineLocation = [];
 var punctRememberer = {};
+var lineBreak = [];
 var count = 0;
+$('#counter').append(localStorage.getItem('count'));
 
 //Submit button click handler
 $('#submit').on('click', function(event) {
@@ -33,10 +35,13 @@ $('#submit').on('click', function(event) {
   } //end for
 }); //end submit click handler
 
+//Clear button click handler
 $('#clear').on('click', function() {
   localStorage.clear();
+  location.reload();
 });
 
+//Reset button click handler
 $('#reset').on('click', function() {
   location.reload();
 });
@@ -54,11 +59,14 @@ function newLine(theInput) {
   let temp;
   let loc = -1;
     for (var i = 0; i < theInput.length; i++) {
-      temp = theInput[i].split(' ');
-      loc = loc + temp.length;
-      newlineLocation.push(loc);
+      if (theInput[i] !== "") {
+        temp = theInput[i].split(' ');
+        loc = loc + temp.length;
+        newlineLocation.push(loc);
+      } else {
+        lineBreak.push(i);
+      }
     }
-//    console.log(newlineLocation);
   }
 //Find punctuation and remember where it is
 function punctuation(w, ind) {
@@ -69,6 +77,7 @@ function punctuation(w, ind) {
          punctRememberer[ind] = w[i];
          w = w.slice(1, w.length);
        } else if (i === w.length-1) {
+           //change VERBin' to VERBing
            if (w[i] === "\'") {
              w = w.slice(0, i);
              w = w + 'g';
@@ -85,6 +94,7 @@ function punctuation(w, ind) {
 //Display text, adding line breaks and punctuation back in
 function outputText(syn) {
     let str = ""
+    let line = 0;
     for (var k in syn) {
       for (var x in punctRememberer) {
         if (x == k) {
@@ -94,12 +104,17 @@ function outputText(syn) {
       for (var i = 0; i < newlineLocation.length; i++) {
         if (newlineLocation[i] == k) {
           syn[k] = syn[k] + '\n';
+          line++;
+        }
+        if (lineBreak[i] === line) {
+          syn[k] = '\n ' + syn[k];
+          line++;
         }
       }
       str = str + " " + syn[k];
     }
     $('#outtext').val(str);
-    $('#counter').append(localStorage.getItem('count')); //might this need to be localStorage instead? and cleared...
+  //  $('#counter').append(localStorage.getItem('count'));
 }
 
 function counter() {
@@ -110,7 +125,6 @@ function counter() {
     count = parseInt(str_count);
   }
   count++;
-  console.log(count);
   localStorage.setItem("count", count);
 }
 
@@ -118,7 +132,6 @@ function callAPI(word, index) {
   var synonyms = {};
   var $xhr = $.getJSON('http://words.bighugelabs.com/api/2/a88271c6246b036bed146df0b7463eac/' + word + '/json');
     counter();
-
     $xhr.done(function(data) {
       var items = [];
       for (var key in data) {
